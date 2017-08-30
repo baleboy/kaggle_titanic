@@ -48,7 +48,7 @@ The survival rate (the "mean" in the "Survived" column above) is 0.38, so by
 just predicting that everybody dies I would be right 62% of the times.
 Hopefully the algorithm will do better than this.
 
-# 2. Initial features and logistic regression
+## 2. Initial features and logistic regression
 
 To start, I will use age, sex, pclass and fare as features for the logistic
 regression algorithm. "Sex" has values "male" and "female" that need to be
@@ -71,7 +71,7 @@ implementation from Scikit. The training accuracy turns out to be 0.79.
 After training the model, I generate the predictions based on the "test.csv"
 file and export them to a CSV file ("step1_results.csv") that I then upload to Kaggle. The resulting score is 74.641.
 
-# 3. Adding more features
+## 3. Adding more features
 
 To improve the accuracy, I add more features to the training data. SibSp, Parch
 and Embarked look like they could help. Training the model with these gives me
@@ -81,5 +81,3 @@ something else. Out of curiosity, I added PassengerId to the features and the
 Kaggle score lowered to 0.74, which is not surprising given that PassengerId
 shouldn't have anything to do with surival rate and only causes the model to
 overfit.
-
-# 4. Better estimation of the missing data
