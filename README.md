@@ -50,15 +50,36 @@ Hopefully the algorithm will do better than this.
 
 # 2. Initial features and logistic regression
 
-To start, I will use age, sex, pclass and fare as features for the logistic regression algorithm. "Sex" has values "male" and "female" that need to be
+To start, I will use age, sex, pclass and fare as features for the logistic
+regression algorithm. "Sex" has values "male" and "female" that need to be
 converted to numeric values.
 
 ```
 data['Sex'] = data['Sex'].map({'male':1,'female':0})
 ```
 
+The age for some of the passengers is missing, so I will fill it with the
+average age. This is a bit crude, but I'll improve it later.
+
+```
+data['Age'].fillna(data['Age'].mean(), inplace=True)
+```
+
 For the model, I will start with a Logistic Regression, using the
-implementation from Scikit. The training accuracy turns out to be 0.79012345679.
+implementation from Scikit. The training accuracy turns out to be 0.79.
 
 After training the model, I generate the predictions based on the "test.csv"
-file and export them to a CSV file ("step1_results.csv") that I then upload to Kaggle. The resulting score is 74.641. 
+file and export them to a CSV file ("step1_results.csv") that I then upload to Kaggle. The resulting score is 74.641.
+
+# 3. Adding more features
+
+To improve the accuracy, I add more features to the training data. SibSp, Parch
+and Embarked look like they could help. Training the model with these gives me
+a training accuracy of 0.81 and the Kaggle score is 0.76077. There are more
+features to be added but they need a bit of processing, so I'll first try
+something else. Out of curiosity, I added PassengerId to the features and the
+Kaggle score lowered to 0.74, which is not surprising given that PassengerId
+shouldn't have anything to do with surival rate and only causes the model to
+overfit.
+
+# 4. Better estimation of the missing data
