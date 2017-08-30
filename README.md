@@ -48,6 +48,9 @@ The survival rate (the "mean" in the "Survived" column above) is 0.38, so by
 just predicting that everybody dies I would be right 62% of the times.
 Hopefully the algorithm will do better than this.
 
+Just for fun I submitted this "all die" prediction to Kaggle and got a score
+of 0.62679, as expected.
+
 ## 2. Initial features and logistic regression
 
 To start, I will use age, sex, pclass and fare as features for the logistic
@@ -81,3 +84,19 @@ something else. Out of curiosity, I added PassengerId to the features and the
 Kaggle score lowered to 0.74, which is not surprising given that PassengerId
 shouldn't have anything to do with surival rate and only causes the model to
 overfit.
+
+## 4. Generate polynomial features
+
+To make the model capable of handling more complex boundaries, I added some
+polynomial features, i.e. generated new features by multiplying the existing
+ones with each other. This can be done with the following scikit methods:
+
+```
+from sklearn.preprocessing import PolynomialFeatures
+...
+poly = PolynomialFeatures(2)
+X_train = poly.fit_transform(X_train)
+```
+With a polynomial order of 2 I was able to increase the training accuracy to
+0.8339 and the Kaggle score to 0.77033. I tried a higher order polynomial (3)
+but the accuracy decreased, so a square polynomial seems to be the best fit.
