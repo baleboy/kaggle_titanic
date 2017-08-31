@@ -3,8 +3,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import PolynomialFeatures
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegressionCV
+from sklearn import preprocessing
+from sklearn import svm
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
 
 def cleanup_data(data):
 
@@ -15,8 +18,9 @@ def cleanup_data(data):
     data['Embarked'].fillna(0, inplace=True)
 
 def train(model, X, y):
+    scores = cross_val_score(model, X, y, cv=5)
+    print("Cross-validation score: {}".format(scores.mean()))
     model = model.fit(X, y)
-    print("Training accuracy: {}".format(model.score(X, y)))
     return model
 
 def predict_result(model, X):
@@ -52,7 +56,7 @@ print("*** Step 2. Features: " +", ".join(features))
 
 model = train(model, train_data[list(features)].values, target)
 result["Survived"] = predict_result(model, test_data[list(features)].values)
-result.to_csv("step1_result.csv", index=False)
+result.to_csv("step2_result.csv", index=False)
 
 print("*** Step 3. Polynomial features (square)")
 
@@ -71,4 +75,20 @@ print("*** Step 4. Try different models")
 model = LogisticRegressionCV()
 model = train(model, X_train, target)
 result["Survived"] = predict_result(model, X_test)
-result.to_csv("step4_result.csv", index=False) # 0.78469
+result.to_csv("step4_result.csv", index=False)
+
+print("*** Step 5. Better data preprocessing")
+
+X_train = train_data[list(features)].values
+enc = preprocessing.OneHotEncoder(categorical_features = [0,1,6])
+enc.fit(X_train)
+X_train = enc.transform(X_train).toarray()
+# X_train = poly.fit_transform(X_train)
+
+X_test = test_data[list(features)].values
+enc.fit(X_test)
+X_test = enc.transform(X_test).toarray()
+# X_test = poly.fit_transform(X_test)
+model = train(model, X_train, target)
+result["Survived"] = predict_result(model, X_test)
+result.to_csv("step5_result.csv", index=False)
