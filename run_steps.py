@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegressionCV
 
 def cleanup_data(data):
 
@@ -63,3 +65,10 @@ X_test = test_data[list(features)].values
 X_test = poly.fit_transform(X_test)
 result["Survived"] = predict_result(model, X_test)
 result.to_csv("step3_result.csv", index=False)
+
+print("*** Step 4. Try different models")
+
+model = LogisticRegressionCV()
+model = train(model, X_train, target)
+result["Survived"] = predict_result(model, X_test)
+result.to_csv("step4_result.csv", index=False) # 0.78469

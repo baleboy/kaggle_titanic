@@ -55,7 +55,7 @@ of 0.62679, as expected.
 
 To start, I will use age, sex, pclass and fare as features for the logistic
 regression algorithm. "Sex" has values "male" and "female" that need to be
-converted to numeric values.
+converted to numeric values
 
 ```
 data['Sex'] = data['Sex'].map({'male':1,'female':0})
@@ -99,4 +99,11 @@ X_train = poly.fit_transform(X_train)
 ```
 With a polynomial order of 2 I was able to increase the training accuracy to
 0.8339 and the Kaggle score to 0.77033. I tried a higher order polynomial (3)
-but the accuracy decreased, so a square polynomial seems to be the best fit.
+but the accuracy decreased, so a quadratic polynomial seems to be the best fit.
+
+## 5. Improve the model
+
+So far I've been using the same Logistic Regression algorithm, but maybe there
+is something to improve. Scikit has a LogisticRegressioCV (cross-validation)
+algorithm that should be more sophisticated, and in fact gives me a Kaggle score
+of 0.78469
