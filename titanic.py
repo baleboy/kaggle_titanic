@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.preprocessing import Normalizer
+from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import FunctionTransformer
 from sklearn.linear_model import LogisticRegressionCV
@@ -11,7 +12,10 @@ from sklearn import preprocessing
 from sklearn import svm
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
-from sklearn.pipeline import Pipeline
+from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.neural_network import MLPClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 def fill_missing_data(data):
     filled_data = data
@@ -26,35 +30,60 @@ def encode_data(data):
     encoded_data['Embarked'] = encoded_data['Embarked'].map({'S':0,'C':1, 'Q':2})
     return encoded_data
 
-def get_data(filename):
+def get_prepared_data(filename):
     features = ["Pclass", "Sex", "Age", "Fare", "Parch", "SibSp", "Embarked"]
     data = pd.read_csv(filename)
     data = encode_data(data)
     data = fill_missing_data(data)
+    pid = data["PassengerId"]
+    if "Survived" in data.columns:
+        y = data["Survived"]
+    else:
+        y = None
     X = data[list(features)].values
-    y = data["Survived"] # Empty if not training data
-    return X,y
+    return X,y,pid
 
-def print_score(model, X, y):
-    scores = cross_val_score(model, X, y)
-    print("Cross-validation score: {}".format(scores.mean()))
-
+def add_model_pipelines(pipelines, model):
+    pipelines.append(make_pipeline(model))
+    pipelines.append(make_pipeline(OneHotEncoder(categorical_features = [0,6]),
+                                   model))
+    pipelines.append(make_pipeline(OneHotEncoder(categorical_features = [0,6]),
+                                   FunctionTransformer(lambda x: x.todense(), accept_sparse=True),
+                                   PolynomialFeatures(2),
+                                   model))
+    pipelines.append(make_pipeline(OneHotEncoder(categorical_features = [0,6]),
+                                   FunctionTransformer(lambda x: x.todense(), accept_sparse=True),
+                                   PolynomialFeatures(2),
+                                   StandardScaler(),
+                                   model))
 # main
-X,y = get_data("train.csv")
+X,y,pid = get_prepared_data("train.csv")
 
-est = [('model', LogisticRegressionCV())]
-pipe = Pipeline(est)
-print_score(pipe, X, y)
+models = [LogisticRegressionCV(),
+          DecisionTreeClassifier(),
+          RandomForestClassifier(n_estimators=100),
+          MLPClassifier(max_iter = 1000)]
 
-est.insert(0, ('encode', OneHotEncoder(categorical_features = [0,6])))
-pipe = Pipeline(est)
-print_score(pipe, X, y)
+pipelines = []
 
-est.insert(len(est) - 1, ('densify', FunctionTransformer(lambda x: x.todense(), accept_sparse=True)))
-est.insert(len(est) - 1, ('polynomial', PolynomialFeatures(2)))
-pipe = Pipeline(est)
-print_score(pipe, X, y)
+for model in models:
+    add_model_pipelines(pipelines, model)
 
-est.insert(len(est) - 1, ('normalize', Normalizer()))
-pipe = Pipeline(est)
-print_score(pipe, X, y)
+best_pipeline = None
+best_score = 0
+
+for pipe in pipelines:
+    score = cross_val_score(pipe, X, y).mean()
+    if score > best_score:
+        best_score = score
+        best_pipeline = pipe
+    print("Cross-validation score: {}".format(score))
+
+if (best_pipeline != None):
+    print(best_pipeline)
+    best_pipeline.fit(X, y) #re-train on full training data
+    result = pd.DataFrame()
+    print("Cross-validation score: {}".format(cross_val_score(best_pipeline, X, y).mean()))
+    X_test, y_hat, result["PassengerId"] = get_prepared_data("test.csv")
+    result["Survived"] = best_pipeline.predict(X_test)
+    result.to_csv("result.csv", index=False)
