@@ -49,11 +49,11 @@ def add_model_pipelines(pipelines, model):
                                    model))
     pipelines.append(make_pipeline(OneHotEncoder(categorical_features = [0,6]),
                                    FunctionTransformer(lambda x: x.todense(), accept_sparse=True),
-                                   PolynomialFeatures(2),
+                                   PolynomialFeatures(degree=2, interaction_only=True),
                                    model))
     pipelines.append(make_pipeline(OneHotEncoder(categorical_features = [0,6]),
                                    FunctionTransformer(lambda x: x.todense(), accept_sparse=True),
-                                   PolynomialFeatures(2),
+                                   PolynomialFeatures(degree=2, interaction_only=True),
                                    StandardScaler(),
                                    model))
 # main
