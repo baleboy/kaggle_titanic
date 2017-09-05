@@ -30,6 +30,9 @@ def encode_data(data):
     encoded_data['Embarked'] = encoded_data['Embarked'].map({'S':0,'C':1, 'Q':2})
     return encoded_data
 
+# Pick the selected features and apply the transformations above.
+# Return the feature matrix, target vector (if present) and passenger IDs.
+# Works on both training and testing data.
 def get_prepared_data(filename):
     features = ['Pclass', 'Sex', 'Age', 'Fare', 'Parch', 'SibSp', 'Embarked']
     data = pd.read_csv(filename)
@@ -43,7 +46,11 @@ def get_prepared_data(filename):
     X = data[list(features)].values
     return X,y,pid
 
-def add_model_pipelines(pipelines, model, name):
+# Return a list of pipelines with different transforms
+# and the same model
+def model_pipelines(model, name):
+
+    pipelines=[]
     pipelines.append({'name': name, 'pipe': make_pipeline(model)})
     pipelines.append({'name': name + "(enc)", 'pipe': make_pipeline(OneHotEncoder(categorical_features = [0,6]),
                                    model)})
@@ -56,6 +63,8 @@ def add_model_pipelines(pipelines, model, name):
                                    PolynomialFeatures(degree=2, interaction_only=True),
                                    StandardScaler(),
                                    model)})
+    return pipelines
+
 # main
 X,y,pid = get_prepared_data('train.csv')
 
@@ -67,7 +76,7 @@ models = [{'name': 'logreg', 'model': LogisticRegressionCV()},
 pipelines = []
 
 for m in models:
-    add_model_pipelines(pipelines, m['model'], m['name'])
+    pipelines.extend(model_pipelines(m['model'], m['name']))
 
 best_pipeline = None
 best_score = 0
