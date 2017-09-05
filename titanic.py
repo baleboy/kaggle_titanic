@@ -43,47 +43,47 @@ def get_prepared_data(filename):
     X = data[list(features)].values
     return X,y,pid
 
-def add_model_pipelines(pipelines, model):
-    pipelines.append(make_pipeline(model))
-    pipelines.append(make_pipeline(OneHotEncoder(categorical_features = [0,6]),
-                                   model))
-    pipelines.append(make_pipeline(OneHotEncoder(categorical_features = [0,6]),
+def add_model_pipelines(pipelines, model, name):
+    pipelines.append({'name': name, 'pipe': make_pipeline(model)})
+    pipelines.append({'name': name + "(enc)", 'pipe': make_pipeline(OneHotEncoder(categorical_features = [0,6]),
+                                   model)})
+    pipelines.append({'name': name + "(enc, poly)", 'pipe': make_pipeline(OneHotEncoder(categorical_features = [0,6]),
                                    FunctionTransformer(lambda x: x.todense(), accept_sparse=True),
                                    PolynomialFeatures(degree=2, interaction_only=True),
-                                   model))
-    pipelines.append(make_pipeline(OneHotEncoder(categorical_features = [0,6]),
+                                   model)})
+    pipelines.append({'name': name + "(enc, poly, scale)", 'pipe': make_pipeline(OneHotEncoder(categorical_features = [0,6]),
                                    FunctionTransformer(lambda x: x.todense(), accept_sparse=True),
                                    PolynomialFeatures(degree=2, interaction_only=True),
                                    StandardScaler(),
-                                   model))
+                                   model)})
 # main
 X,y,pid = get_prepared_data('train.csv')
 
-models = [LogisticRegressionCV(),
-          DecisionTreeClassifier(),
-          RandomForestClassifier(n_estimators=100),
-          MLPClassifier(max_iter = 1000)]
+models = [{'name': 'logreg', 'model': LogisticRegressionCV()},
+          {'name': 'dectree', 'model': DecisionTreeClassifier()},
+          {'name': 'forest', 'model': RandomForestClassifier(n_estimators=100)},
+          {'name': 'neuralnet', 'model': MLPClassifier(max_iter = 1000)}]
 
 pipelines = []
 
-for model in models:
-    add_model_pipelines(pipelines, model)
+for m in models:
+    add_model_pipelines(pipelines, m['model'], m['name'])
 
 best_pipeline = None
 best_score = 0
 
-for pipe in pipelines:
-    score = cross_val_score(pipe, X, y).mean()
+for p in pipelines:
+    score = cross_val_score(p['pipe'], X, y).mean()
     if score > best_score:
         best_score = score
-        best_pipeline = pipe
-    print("Cross-validation score: {}".format(score))
+        best_pipeline = p
+    print(p['name'] + ": {}".format(score))
 
 if (best_pipeline != None):
-    print(best_pipeline)
-    best_pipeline.fit(X, y) #re-train on full training data
+    print("Best pipeline: " + best_pipeline['name'])
+    best_pipeline['pipe'].fit(X, y) #re-train on full training data
     result = pd.DataFrame()
-    print("Cross-validation score: {}".format(cross_val_score(best_pipeline, X, y).mean()))
+    print("Training accuracy: {}".format(best_pipeline['pipe'].score(X, y)))
     X_test, y_hat, result['PassengerId'] = get_prepared_data('test.csv')
-    result['Survived'] = best_pipeline.predict(X_test)
+    result['Survived'] = best_pipeline['pipe'].predict(X_test)
     result.to_csv('result.csv', index=False)
