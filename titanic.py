@@ -31,13 +31,13 @@ def encode_data(data):
     return encoded_data
 
 def get_prepared_data(filename):
-    features = ["Pclass", "Sex", "Age", "Fare", "Parch", "SibSp", "Embarked"]
+    features = ['Pclass', 'Sex', 'Age', 'Fare', 'Parch', 'SibSp', 'Embarked']
     data = pd.read_csv(filename)
     data = encode_data(data)
     data = fill_missing_data(data)
-    pid = data["PassengerId"]
-    if "Survived" in data.columns:
-        y = data["Survived"]
+    pid = data['PassengerId']
+    if 'Survived' in data.columns:
+        y = data['Survived']
     else:
         y = None
     X = data[list(features)].values
@@ -57,7 +57,7 @@ def add_model_pipelines(pipelines, model):
                                    StandardScaler(),
                                    model))
 # main
-X,y,pid = get_prepared_data("train.csv")
+X,y,pid = get_prepared_data('train.csv')
 
 models = [LogisticRegressionCV(),
           DecisionTreeClassifier(),
@@ -84,6 +84,6 @@ if (best_pipeline != None):
     best_pipeline.fit(X, y) #re-train on full training data
     result = pd.DataFrame()
     print("Cross-validation score: {}".format(cross_val_score(best_pipeline, X, y).mean()))
-    X_test, y_hat, result["PassengerId"] = get_prepared_data("test.csv")
-    result["Survived"] = best_pipeline.predict(X_test)
-    result.to_csv("result.csv", index=False)
+    X_test, y_hat, result['PassengerId'] = get_prepared_data('test.csv')
+    result['Survived'] = best_pipeline.predict(X_test)
+    result.to_csv('result.csv', index=False)
