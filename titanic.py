@@ -14,6 +14,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
 
 def add_title(data):
     data['Title'] = data['Name'].map(lambda x: x.split(',')[1].split('.')[0].strip())
@@ -97,7 +98,8 @@ X_train, X_test, result['PassengerId'], y = get_data('train.csv', 'test.csv')
 
 models = [{'name': 'logreg', 'model': LogisticRegressionCV()},
           {'name': 'forest', 'model': RandomForestClassifier(n_estimators=100)},
-          {'name': 'neuralnet', 'model': MLPClassifier(max_iter = 1000)}]
+          {'name': 'neuralnet', 'model': MLPClassifier(max_iter = 1000)},
+          {'name': 'svc', 'model': SVC()}]
 
 pipelines = []
 
@@ -108,7 +110,7 @@ best_pipeline = None
 best_score = 0
 
 for p in pipelines:
-    score = cross_val_score(p['pipe'], X_train, y).mean()
+    score = cross_val_score(p['pipe'], X_train, y, scoring='f1').mean()
     if score > best_score:
         best_score = score
         best_pipeline = p
