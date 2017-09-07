@@ -17,10 +17,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 
 def add_title(data):
-    data['Title'] = data['Name'].map(lambda x: x.split(',')[1].split('.')[0].strip())
+    data['Title'] = data['Name'].apply(lambda x: x.split(',')[1].split('.')[0].strip())
 
 def add_deck(data):
-    data['Deck'] = data['Cabin'].map(lambda x: str(x)[0])
+    data['Deck'] = data['Cabin'].apply(lambda x: str(x)[0])
     data['Deck'].fillna('U', inplace = True)
 
 def process_age(data):
