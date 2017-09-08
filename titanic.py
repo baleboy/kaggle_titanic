@@ -28,7 +28,7 @@ def process_age(data):
     age_by_title_sex = data.groupby(['Title', 'Sex'])['Age'].mean()
     data['Age'] = data.apply(
         lambda row:
-            age_by_title_sex[row['Title']][row['Sex']] if np.isnan(row['Age'])
+            age_by_title_sex[row['Title'], row['Sex']] if np.isnan(row['Age'])
             else row['Age'], axis=1
         )
     data['Age'] = StandardScaler().fit_transform(data['Age'].values.reshape(-1, 1))
