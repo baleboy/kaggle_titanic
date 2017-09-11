@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.neural_network import MLPClassifier
+from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 
@@ -31,6 +32,7 @@ def process_age(data):
             age_by_title_sex[row['Title'], row['Sex']] if np.isnan(row['Age'])
             else row['Age'], axis=1
         )
+
     data['Age'] = StandardScaler().fit_transform(data['Age'].values.reshape(-1, 1))
 
 def process_fare(data):
@@ -109,17 +111,21 @@ for m in models:
 best_pipeline = None
 best_score = 0
 
+X_train2, X_test2, y_train, y_test = train_test_split(X_train, y, test_size=0.30, random_state = 42)
+
 for p in pipelines:
-    score = cross_val_score(p['pipe'], X_train, y, scoring='f1').mean()
+    print("*** " + p['name'])
+    # score = cross_val_score(p['pipe'], X_train, y, scoring='accuracy').mean()
+    p['pipe'].fit(X_train2, y_train)
+    print("Training score: {}".format(p['pipe'].score(X_train2, y_train)))
+    score = p['pipe'].score(X_test2, y_test)
     if score > best_score:
         best_score = score
         best_pipeline = p
-    print(p['name'] + ": {}".format(score))
+    print("CV score: {}".format(score))
 
 if (best_pipeline != None):
-    print("Best pipeline: " + best_pipeline['name'])
+    print("Best pipeline: " + best_pipeline['name'] + ", score: {}".format(best_score))
     best_pipeline['pipe'].fit(X_train, y) #re-train on full training data
-    print("Training accuracy: {}".format(best_pipeline['pipe'].score(X_train, y)))
-
     result['Survived'] = best_pipeline['pipe'].predict(X_test)
     result.to_csv('result.csv', index=False)
