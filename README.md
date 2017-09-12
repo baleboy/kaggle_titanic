@@ -5,8 +5,6 @@ predict whether a passenger survived the sinking of the Titanic based on his
 or her passenger information. The dataset comes from [Kaggle](https://www.kaggle.com/c/titanic) and is used as
 an introduction to machine learning competitions.
 
-The best Kaggle score I have achieved is **0.78947**, which is not great (but at least better than predicting that no-one survived, which gives a score of ~0.62). Note that you can cheat and look up the survival status from one of the Titanic passenger databases, which explains the very high scores in the Kaggle leaderboard. But a score of 0.82 should be achievable with a model.
-
 There are plenty of iPython notebooks out there that walk you through the data processing steps, so I won't go too much into details (you can check the code for that). I did try to come up with solutions by myself before looking them up, and in most cases I did.
 
 ## Implementation
@@ -32,6 +30,12 @@ The script goes through several of the models that come with Sklearn, using defa
 
 The best model according to this comparison is the Support Vector Machine (`SVM.SVC` model in Sklearn) with polynomial features, with a training score of 0.84 and a CV score: 0.82. Since the two scores are close, there doesn't seem to be a problem of overfitting (as is for example the case with the RandomForest model).
 seems to be the best fit.
+
+## Performance of the prediction
+
+If I just predicted that everybody in the Kaggle dataset died, I would get an accuracy of ~0.62. I also tried to make a simple prediction based on the survival rates of males and females, and got a Kaggle score of ~0.7. Note that you can cheat and look up the survival status from one of the Titanic passenger databases, which explains the very high scores in the Kaggle leaderboard. But a score of 0.82 should be achievable with a model.
+
+The best score I have achieved with this implementation is **0.78947**, which is better than the baseline but not that great in Kaggle terms. 
 
 ## Conclusion
 
