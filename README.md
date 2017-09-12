@@ -2,108 +2,37 @@
 
 This is my first application of machine learning techniques. The goal is to
 predict whether a passenger survived the sinking of the Titanic based on his
-or her passenger information. The dataset comes from Kaggle and is used as
+or her passenger information. The dataset comes from [Kaggle](https://www.kaggle.com/c/titanic) and is used as
 an introduction to machine learning competitions.
 
-The main purpose of this exercise is for me to learn about ML. For this reason,
-the code and this document are organized in steps, each one adding a new
-technique or optimization to improve the overall model. I'm just starting
-with ML, so some of (or all) the solutions are probably naive.
+The best Kaggle score I have achieved is **0.78947**, which is not great (but at least better than predicting that no-one survived, which gives a score of ~0.62). Note that you can cheat and look up the survival status from one of the Titanic passenger databases, which explains the very high scores in the Kaggle leaderboard. But a score of 0.82 should be achievable with a model.
 
-As development environment I'm using Python and some of its popular libraries
-for data science:
+There are plenty of iPython notebooks out there that walk you through the data processing steps, so I won't go too much into details (you can check the code for that). I did try to come up with solutions by myself before looking them up, and in most cases I did.
 
-```
-import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-```
+## Implementation
 
-## 1. Getting the data
+The script `titanic.py` processes the data, trains a few models and picks the best one to generate the prediction for the target set.
 
-The training data is in a CSV file easily readable with Pandas:
+### Data Processing
 
-```
-data = pd.read_csv('train.csv')
-```
+The features I picked for the model are:
 
-The describe() method gives an overview of the data:
+* **Title** - extracted from the passenger name. There are some exotic titles with only one representative, it may be a good idea to squash them in broader categories but I chose not to do it. Then again, perhaps a Count has more chances to survive than a Mr.? Of course one should analyze the data to decide that.
+* **Age** - there are a lot of missing values for age, and it looks like it would be important to predict the survival. To better guess the age, I filled the missing values with the average age for a given Title. The procedure is not very robust because it assumes that there is at least one age value per title, but luckily that is the case.
+* **Cabin Deck** - extracted from the cabin number. I'm not sure how useful this is because there are a majority of missing values (which are given the value 'U' - Unspecified), and I do get the same score without this feature, but it's easy to add and it may help future models.
+* **Fare** - there are a few fare values missing that are imputed from the average fare per passenger class
+* **Embarked** - Mainly untouched, but I filled the missing values with the most common port of embarkation.
+* **Passenger class, SibSp, Parch** - untouched. I saw a lot of notebooks where SibSp and Parch were combined into a "Family size" feature, but I would expect the model to be able to do it by itself. Naive?
 
-```
-data.describe()
-```
+Numeric features are scaled, and categoric values are turned into "dummies", i.e. one column per category with value 0 or 1. This seems to be a requirement for most of the models in Sklearn.
 
-| | PassengerId | Survived | Pclass | Age | SibSp | Parch | Fare |
-|-|-------------|----------|--------|-----|-------|-------|------|
-| count | 891.000000 | 891.000000 | 891.000000 | 714.000000 | 891.000000 | 891.000000 | 891.000000 |
-| mean | 446.000000 | 0.383838 | 2.308642 | 29.699118 | 0.523008 | 0.381594 | 32.204208 |
-| std | 257.353842 | 0.486592 | 0.836071 | 14.526497 | 1.102743 | 0.806057 | 49.693429 |
-| min | 1.000000 | 0.000000 | 1.000000 | 0.420000 | 0.000000 | 0.000000 | 0.000000 |
-| 25% | 223.500000 | 0.000000 | 2.000000 | 20.125000 | 0.000000 | 0.000000 | 7.910400 |
-| 50% | 446.000000 | 0.000000 | 3.000000 | 28.000000 | 0.000000 | 0.000000 |  14.454200 |
-| 75% | 668.500000 | 1.000000 | 3.000000 | 38.000000 | 1.000000 | 0.000000 |  31.000000 |
-| max | 891.000000 | 1.000000 | 3.000000 | 80.000000 | 8.000000 | 6.000000 | 512.329200 |
+## Model Selection
 
-The survival rate (the "mean" in the "Survived" column above) is 0.38, so by
-just predicting that everybody dies I would be right 62% of the times.
-Hopefully the algorithm will do better than this.
+The script goes through several of the models that come with Sklearn, using default parameters. For each model, a variant with quadratic polynomial features is also tried. The training set is split into a training set (60% of the samples) and a cross-validation set, and the models are compared based on the score on the CV set.
 
-Just for fun I submitted this "all die" prediction to Kaggle and got a score
-of 0.62679, as expected.
+The best model according to this comparison is the Support Vector Machine (`SVM.SVC` model in Sklearn) with polynomial features, with a training score of 0.84 and a CV score: 0.82. Since the two scores are close, there doesn't seem to be a problem of overfitting (as is for example the case with the RandomForest model).
+seems to be the best fit.
 
-## 2. Initial features and logistic regression
+## Conclusion
 
-To start, I will use age, sex, pclass and fare as features for the logistic
-regression algorithm. "Sex" has values "male" and "female" that need to be
-converted to numeric values
-
-```
-data['Sex'] = data['Sex'].map({'male':1,'female':0})
-```
-
-The age for some of the passengers is missing, so I will fill it with the
-average age. This is a bit crude, but I'll improve it later.
-
-```
-data['Age'].fillna(data['Age'].mean(), inplace=True)
-```
-
-For the model, I will start with a Logistic Regression, using the
-implementation from Scikit. The training accuracy turns out to be 0.79.
-
-After training the model, I generate the predictions based on the "test.csv"
-file and export them to a CSV file ("step1_results.csv") that I then upload to Kaggle. The resulting score is 74.641.
-
-## 3. Adding more features
-
-To improve the accuracy, I add more features to the training data. SibSp, Parch
-and Embarked look like they could help. Training the model with these gives me
-a training accuracy of 0.81 and the Kaggle score is 0.76077. There are more
-features to be added but they need a bit of processing, so I'll first try
-something else. Out of curiosity, I added PassengerId to the features and the
-Kaggle score lowered to 0.74, which is not surprising given that PassengerId
-shouldn't have anything to do with surival rate and only causes the model to
-overfit.
-
-## 4. Generate polynomial features
-
-To make the model capable of handling more complex boundaries, I added some
-polynomial features, i.e. generated new features by multiplying the existing
-ones with each other. This can be done with the following scikit methods:
-
-```
-from sklearn.preprocessing import PolynomialFeatures
-...
-poly = PolynomialFeatures(2)
-X_train = poly.fit_transform(X_train)
-```
-With a polynomial order of 2 I was able to increase the training accuracy to
-0.8339 and the Kaggle score to 0.77033. I tried a higher order polynomial (3)
-but the accuracy decreased, so a quadratic polynomial seems to be the best fit.
-
-## 5. Improve the model
-
-So far I've been using the same Logistic Regression algorithm, but maybe there
-is something to improve. Scikit has a LogisticRegressioCV (cross-validation)
-algorithm that should be more sophisticated, and in fact gives me a Kaggle score
-of 0.78469
+I'm sure my approach to this problem is simplistic, as is demonstrated by the fact that I can't increase the score beyond 0.79. I should at least try different model parameters, and do a more systematic analysis of the training data.  
