@@ -16,6 +16,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
+from sklearn.externals import joblib
 
 def add_title(data):
     data['Title'] = data['Name'].apply(lambda x: x.split(',')[1].split('.')[0].strip())
@@ -129,3 +130,4 @@ if (best_pipeline != None):
     best_pipeline['pipe'].fit(X, y) #re-train on full training data
     result['Survived'] = best_pipeline['pipe'].predict(X_target)
     result.to_csv('result.csv', index=False)
+    joblib.dump(best_pipeline['pipe'], 'titanic.pkl')
