@@ -19,6 +19,20 @@ def process_data(data):
 
     return X_train, X_test
 
+def process_training_data(data):
+    add_title(data)
+    add_deck(data)
+    process_age(data)
+    process_fare(data)
+    process_embarked(data)
+    process_sibsp(data)
+    process_parch(data)
+
+    data.drop(['Name', 'PassengerId', 'Ticket', 'Cabin'], axis=1, inplace=True)
+    data = pd.get_dummies(data, columns=['Pclass', 'Sex', 'Embarked', 'Title', 'Deck'])
+
+    return data.values
+
 def add_title(data):
     data['Title'] = data['Name'].apply(lambda x: x.split(',')[1].split('.')[0].strip())
 
