@@ -16,64 +16,50 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.externals import joblib
-import sys
+from sys import argv
 import preprocessing as pp # Local module
+from pdb import set_trace
 
-# Pick the selected features and apply the preprocessing transformations.
-# Return the feature matrix, target vector (if present) and passenger IDs.
-# Works on both training and testing data.
 def get_data(traindatafile):
 
     data = pd.read_csv(traindatafile)
     y = data['Survived']
     data.drop(['Survived'], axis=1, inplace=True)
 
-    X = pp.process_training_data(data)
+    X, helpers = pp.process_training_data(data)
 
-    return X, y
+    return X, y, helpers
 
-# Return a list of pipelines with different transforms
-# and the same model
-def model_pipelines(model, name):
+def main(argv):
+    trainfile = argv[1]
+    X, y, helpers = get_data(trainfile)
 
-    pipelines=[]
-    pipelines.append({'name': name, 'pipe': make_pipeline(model)})
-    pipelines.append({'name': name + "(poly2)", 'pipe': make_pipeline(PolynomialFeatures(degree=2, interaction_only=True),
-    model)})
+    models = [{'name': 'logreg', 'model': LogisticRegressionCV()},
+              {'name': 'logreg + poly2', 'model': make_pipeline(PolynomialFeatures(degree=2, interaction_only=True), LogisticRegressionCV())},
+              {'name': 'forest', 'model': RandomForestClassifier(n_estimators=100)},
+              {'name': 'neuralnet', 'model': MLPClassifier(max_iter = 1000)},
+              {'name': 'svc', 'model': SVC()}]
 
-    return pipelines
+    best_model = None
+    best_score = 0
 
-# main
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.40, random_state = 42)
 
-trainfile = sys.argv[1]
-X, y = get_data(trainfile)
+    for m in models:
+        print("*** " + m['name'])
 
-models = [{'name': 'logreg', 'model': LogisticRegressionCV()},
-          {'name': 'forest', 'model': RandomForestClassifier(n_estimators=100)},
-          {'name': 'neuralnet', 'model': MLPClassifier(max_iter = 1000)},
-          {'name': 'svc', 'model': SVC()}]
+        m['model'].fit(X_train, y_train)
+        print("Training score: {}".format(m['model'].score(X_train, y_train)))
+        cv_score = m['model'].score(X_test, y_test)
+        if cv_score > best_score:
+            best_score = cv_score
+            best_model = m
+        print("CV score: {}".format(cv_score))
 
-pipelines = []
+    if (best_model != None):
+        print("Best model: " + best_model['name'] + ", score: {}".format(best_score))
+        helpers['model'] = best_model['model']
+        joblib.dump(helpers, 'titanic.pkl')
 
-for m in models:
-    pipelines.extend(model_pipelines(m['model'], m['name']))
-
-best_pipeline = None
-best_score = 0
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.40, random_state = 42)
-
-for p in pipelines:
-    print("*** " + p['name'])
-    # score = cross_val_score(p['pipe'], X_train, y, scoring='accuracy').mean()
-    p['pipe'].fit(X_train, y_train)
-    print("Training score: {}".format(p['pipe'].score(X_train, y_train)))
-    score = p['pipe'].score(X_test, y_test)
-    if score > best_score:
-        best_score = score
-        best_pipeline = p
-    print("CV score: {}".format(score))
-
-if (best_pipeline != None):
-    print("Best pipeline: " + best_pipeline['name'] + ", score: {}".format(best_score))
-    joblib.dump(best_pipeline['pipe'], 'titanic.pkl')
+if __name__ == "__main__":
+    main(argv)

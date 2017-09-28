@@ -9,7 +9,8 @@ There are plenty of iPython notebooks out there that walk you through the data p
 
 ## Implementation
 
-The script `titanic.py` processes the data, trains a few models and picks the best one to generate the prediction for the target set.
+The script `train.py` processes the data, trains a few models and picks the best one to generate the prediction for the target set. The model and other helper functions needed to infer the data are saved in a pickle file. The script `predict.py`
+loads the trained model and helper functions and uses them to predict the results on a given dataset.
 
 ### Data Processing
 
@@ -24,18 +25,21 @@ The features I picked for the model are:
 
 Numeric features are scaled, and categoric values are turned into "dummies", i.e. one column per category with value 0 or 1. This seems to be a requirement for most of the models in Sklearn.
 
+It's important to note that the mean and variance of the data is calculated only on the training set, to avoid making any
+sort of assumption on the test set (which should anyway follow the same distribution). This is why the fit scalers are
+saved to disk during training. 
+
 ## Model Selection
 
-The script goes through several of the models that come with Sklearn, using default parameters. For each model, a variant with quadratic polynomial features is also tried. The training set is split into a training set (60% of the samples) and a cross-validation set, and the models are compared based on the score on the CV set.
+The script goes through several of the models that come with Sklearn, using default parameters. The training set is split into a training set (60% of the samples) and a cross-validation set, and the models are compared based on the score on the CV set.
 
-The best model according to this comparison is the Support Vector Machine (`SVM.SVC` model in Sklearn) with polynomial features, with a training score of 0.84 and a CV score: 0.82. Since the two scores are close, there doesn't seem to be a problem of overfitting (as is for example the case with the RandomForest model).
-seems to be the best fit.
+The best model according to this comparison is the Support Vector Machine (`SVM.SVC` model in Sklearn), with a training score of 0.84 and a CV score: 0.82. Since the two scores are close, there doesn't seem to be a problem of overfitting (as is for example the case with the RandomForest model).
 
 ## Performance of the prediction
 
 If I just predicted that everybody in the Kaggle dataset died, I would get an accuracy of ~0.62. I also tried to make a simple prediction based on the survival rates of males and females, and got a Kaggle score of ~0.7. Note that you can cheat and look up the survival status from one of the Titanic passenger databases, which explains the very high scores in the Kaggle leaderboard. But a score of 0.82 should be achievable with a model.
 
-The best score I have achieved with this implementation is **0.78947**, which is better than the baseline but not that great in Kaggle terms. 
+The best score I have achieved with this implementation is **0.78947**, which is better than the baseline but not that great in Kaggle terms.
 
 ## Conclusion
 
