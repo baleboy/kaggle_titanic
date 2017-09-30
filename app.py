@@ -30,8 +30,7 @@ def get_prediction():
     model = helpers['model']
 
     data = pd.DataFrame(request.json, index=[0])
-    data['PassengerId'] = None
-    data['Ticket'] = None
+
     X = pp.process_test_data(data, helpers)
     survived = model.predict(X)
 
