@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask import request
 import pandas as pd
 from sklearn.externals import joblib
@@ -11,19 +11,8 @@ app = Flask(__name__)
 def index():
     return "true"
 
-@app.route('/titanic/predict', methods=['GET', 'POST'])
+@app.route('/titanic/api/v1.0/survived', methods=['GET'])
 
-# {
-#   name: "Caio, Mr. Tizio",
-#   class: 2,
-#   sex: "male",
-#   age: 42,
-#   sibsp: 2,
-#   parch: 1,
-#   fare: 23.45,
-#   cabin: "A123",
-#   embarked: "Q"
-# }
 def get_prediction():
 
     helpers = joblib.load('titanic.pkl')
@@ -34,7 +23,8 @@ def get_prediction():
     X = pp.process_test_data(data, helpers)
     survived = model.predict(X)
 
-    return 'yes' if survived else 'no'
+    survived = 'yes' if survived else 'no'
+    return jsonify({'survived': survived})
 
 if __name__ == '__main__':
     app.run(port=5000,host='0.0.0.0')
