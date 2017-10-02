@@ -18,7 +18,19 @@ def get_prediction():
     helpers = joblib.load('titanic.pkl')
     model = helpers['model']
 
-    data = pd.DataFrame(request.json, index=[0])
+    passenger = {};
+
+    passenger['Name'] = request.args.get('n')
+    passenger['Sex'] = request.args.get('s')
+    passenger['Age'] = int(float(request.args.get('a')))
+    passenger['Fare'] = float(request.args.get('f'))
+    passenger['Pclass'] = int(float(request.args.get('c')))
+    passenger['SibSp'] = int(float(request.args.get('si')))
+    passenger['Parch'] = int(float(request.args.get('p')))
+    passenger['Embarked'] = request.args.get('e')
+    passenger['Cabin'] = request.args.get('ca')
+
+    data = pd.DataFrame(passenger, index=[0])
 
     X = pp.process_test_data(data, helpers)
     survived = model.predict(X)
