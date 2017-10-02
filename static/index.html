@@ -80,7 +80,7 @@
 
         congrats_msg = "Congratulations, you would have survived the sinking of the Titanic!"
         sorry_msg = "Unfortunately you would not have survived the sinking of the Titanic..."
-        $.getJSON("../titanic/api/v1.0/survived", data, function(res) {
+        $.getJSON("/titanic/api/v1.0/survived", data, function(res) {
           window.alert(res.survived == 'yes' ? congrats_msg : sorry_msg);
         });
       }

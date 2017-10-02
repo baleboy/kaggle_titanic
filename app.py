@@ -1,11 +1,17 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_file
 from flask import request
 import pandas as pd
 from sklearn.externals import joblib
+import os
 
 import preprocessing as pp # local module
 
 app = Flask(__name__)
+
+@app.route("/")
+def main():
+    index_path = os.path.join(app.static_folder, 'index.html')
+    return send_file(index_path)
 
 @app.route('/isAlive')
 def index():
