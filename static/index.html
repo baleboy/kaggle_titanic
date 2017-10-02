@@ -9,47 +9,56 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
   </head>
   <body>
-    <h1>Predict Titanic Survival</h1>
+    <div class="m-3" align="center">
+    <h1 class="m-3">Predict Titanic Survival</h1>
       <div class="form-group">
+        <div class="container">
         <label>
-          <input type="text" class="form-text-input" id="nameInput">
           Name
+          <input type="text" class="form-text-input" id="nameInput">
         </label>
         <label>
-          <input type="number" class="form-number-input" id="classInput">
-          Class
-        </label>
-        <label>
-          <input type="text" class="form-text-input" id="sexInput">
-          Sex
-        </label>
-        <label>
-          <input type="number" class="form-number-input" id="ageInput">
           Age
+          <input type="number" class="form-number-input" id="ageInput">
         </label>
         <label>
-          <input type="number" class="form-number-input" id="sibspInput">
-          Co-travellers (siblings or spouse)
+          Sex
+          <input type="text" class="form-text-input" id="sexInput">
         </label>
-        <label>
-          <input type="number" class="form-number-input" id="parchInput">
-          Co-travellers (parents or children)
-        </label>
-        <label>
-          <input type="number" class="form-number-input" id="fareInput">
-          Fare
-        </label>
-        <label>
-          <input type="text" class="form-text-input" id="cabinInput">
-          Cabin
-        </label>
-        <label>
-          <input type="text" class="form-text-input" id="embarkedInput">
-          Port of embarkation
-        </label>
-        <button type="button" class="btn btn-primary" onclick="sendRequest()">Predict!</button>
       </div>
-
+      <div class="container">
+        <label>
+          Passenger Class
+          <input type="number" class="form-number-input" id="classInput">
+        </label>
+        <label>
+          Fare
+          <input type="number" class="form-number-input" id="fareInput">
+        </label>
+      </div>
+      <div class="container">
+        <label>
+          Co-travellers (siblings or spouse)
+          <input type="number" class="form-number-input" id="sibspInput">
+        </label>
+        <label>
+          Co-travellers (parents or children)
+          <input type="number" class="form-number-input" id="parchInput">
+        </label>
+      </div>
+      <div class="container">
+        <label>
+          Cabin
+          <input type="text" class="form-text-input" id="cabinInput">
+        </label>
+        <label>
+          Port of embarkation
+          <input type="text" class="form-text-input" id="embarkedInput">
+        </label>
+      </div>
+        <button type="button" class="btn btn-primary m-3" onclick="sendRequest()">Predict!</button>
+      </div>
+    </div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
