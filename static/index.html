@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <title>Would you have survived the sinking of the Titanic?</title>
     <link href="https://fonts.googleapis.com/css?family=Goudy+Bookletter+1911" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
     <meta charset="utf-8">
@@ -11,7 +12,7 @@
   </head>
   <body>
     <div class="mdl-layout mdl-js-layout">
-    <main class="mdl-layout__content">
+    <main class="mdl-layout__content" style="padding: 2em;">
     <div style="text-align: center;">
       <img src="/static/wslogo.png">
       <h3 style="font-family: 'Goudy Bookletter 1911', serif;">R.M.S. TITANIC</h3>
@@ -19,13 +20,15 @@
     </div>
     <form action="#">
       <div class="mdl-grid" style="max-width:600px;">
-        <div class="mdl-textfield mdl-js-textfield mdl-cell mdl-cell--2-col">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
           <select class="mdl-textfield__input" id="title" name="titles">
+            <option></option>
             <option value="Mr.">Mr</option>
             <option value="Mrs.">Mrs</option>
             <option value="Miss.">Miss</option>
             <option value="Master.">Master</option>
           </select>
+          <label class="mdl-textfield__label" for="title">Title</label>
         </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
         <input class="mdl-textfield__input" type="text" id="firstName">
@@ -40,23 +43,41 @@
         <label class="mdl-textfield__label" for="ageInput">Age</label>
         <span class="mdl-textfield__error">Input is not a number</span>
       </div>
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
-        <input class="mdl-textfield__input" type="text" pattern="-?[1-3]?" id="classInput">
-        <label class="mdl-textfield__label" for="sexInput">Passenger Class</label>
-        <span class="mdl-textfield__error">Only values 1-3</span>
+      <div class="mdl-textfield mdl-textfield--floating-label mdl-js-textfield mdl-cell mdl-cell--4-col">
+        <select class="mdl-textfield__input" id="class" name="titles">
+          <option></option>
+          <option value="1">First Class</option>
+          <option value="2">Second Class</option>
+          <option value="3">Third Class</option>
+        </select>
+        <label class="mdl-textfield__label" for="class">Passenger class</label>
       </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
-        <input class="mdl-textfield__input" type="text" id="embarkedInput">
-        <label class="mdl-textfield__label" for="sexInput">Leaving from</label>
+        <select class="mdl-textfield__input" id="embarked" name="titles">
+          <option></option>
+          <option value="S">Southhampton</option>
+          <option value="C">Cherbourg</option>
+          <option value="Q">Queenstown</option>
+        </select>
+        <label class="mdl-textfield__label" for="embarked">Depart from</label>
       </div>
+      <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-cell mdl-cell--4-col" for="withSpouse">
+        <input type="checkbox" id="withSpouse" class="mdl-checkbox__input">
+        <span class="mdl-checkbox__label">Spouse on board</span>
+      </label>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
-        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sibspInput">
+        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="siblings">
         <label class="mdl-textfield__label" for="ageInput">N. of siblings on board</label>
         <span class="mdl-textfield__error">Input is not a number</span>
       </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
-        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="parchInput">
+        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="parents">
         <label class="mdl-textfield__label" for="ageInput">N. of parents on board</label>
+        <span class="mdl-textfield__error">Input is not a number</span>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
+        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="children">
+        <label class="mdl-textfield__label" for="ageInput">N. of children on board</label>
         <span class="mdl-textfield__error">Input is not a number</span>
       </div>
     </div>
@@ -78,22 +99,25 @@
         }
 
         fullName = document.getElementById('lastName').value + ' ' +
-          document.getElementById('title').value + ', ' + document.getElementById('firstName').value
-        var data = {
+          document.getElementById('title').value + ', ' + document.getElementById('firstName').value;
+
+        sibsp = parseInt(document.getElementById('siblings').value) + document.getElementById('withSpouse').checked ? 1 : 0;
+        parch = parseInt(document.getElementById('parents').value) + parseInt(document.getElementById('children').value)
+        var request = {
           'n': fullName,
           's': sex[document.getElementById('title').value],
           'a': document.getElementById('ageInput').value,
-          'c': document.getElementById('classInput').value,
-          'si': document.getElementById('sibspInput').value,
-          'p': document.getElementById('parchInput').value,
+          'c': document.getElementById('class').value,
+          'si': sibsp,
+          'p': parch,
           'f': '125',
           'ca': 'B1',
-          'e': document.getElementById('embarkedInput').value
+          'e': document.getElementById('embarked').value
         };
 
         congrats_msg = "Congratulations, you would have survived the sinking of the Titanic!"
         sorry_msg = "Unfortunately you would not have survived the sinking of the Titanic..."
-        $.getJSON("/titanic/api/v1.0/survived", data, function(res) {
+        $.getJSON("/titanic/api/v1.0/survived", request, function(res) {
           window.alert(res.survived == 'yes' ? congrats_msg : sorry_msg);
         });
       }
