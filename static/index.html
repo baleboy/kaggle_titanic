@@ -19,18 +19,28 @@
     <form action="#">
       <h5 style="text-align: center;">Enter the passenger's details</h5>
       <div class="mdl-grid" style="max-width:600px;">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+          <select class="mdl-textfield__input" id="title" name="titles">
+            <option></option>
+            <option value="Mr.">Mr</option>
+            <option value="Mrs.">Mrs</option>
+            <option value="Miss.">Miss</option>
+            <option value="Master.">Master</option>
+          </select>
+          <label class="mdl-textfield__label" for="title">Title</label>
+        </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
-        <input class="mdl-textfield__input" type="text" id="nameInput">
-        <label class="mdl-textfield__label" for="nameInput">Name</label>
+        <input class="mdl-textfield__input" type="text" id="firstName">
+        <label class="mdl-textfield__label" for="nameInput">First name</label>
       </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
+        <input class="mdl-textfield__input" type="text" id="lastName">
+        <label class="mdl-textfield__label" for="nameInput">Last name</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
         <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="ageInput">
         <label class="mdl-textfield__label" for="ageInput">Age</label>
         <span class="mdl-textfield__error">Input is not a number</span>
-      </div>
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
-        <input class="mdl-textfield__input" type="text" id="sexInput">
-        <label class="mdl-textfield__label" for="sexInput">Sex</label>
       </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
         <input class="mdl-textfield__input" type="text" pattern="-?[1-3]?" id="classInput">
@@ -38,9 +48,8 @@
         <span class="mdl-textfield__error">Only values 1-3</span>
       </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
-        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="fareInput">
-        <label class="mdl-textfield__label" for="ageInput">Fare</label>
-        <span class="mdl-textfield__error">Input is not a number</span>
+        <input class="mdl-textfield__input" type="text" id="embarkedInput">
+        <label class="mdl-textfield__label" for="sexInput">Leaving from</label>
       </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
         <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sibspInput">
@@ -52,14 +61,6 @@
         <label class="mdl-textfield__label" for="ageInput">N. of parents on board</label>
         <span class="mdl-textfield__error">Input is not a number</span>
       </div>
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
-        <input class="mdl-textfield__input" type="text" id="cabinInput">
-        <label class="mdl-textfield__label" for="sexInput">Cabin</label>
-      </div>
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--4-col">
-        <input class="mdl-textfield__input" type="text" id="embarkedInput">
-        <label class="mdl-textfield__label" for="sexInput">Leaving from</label>
-      </div>
     </div>
     </form>
     <div style="text-align: center;">
@@ -70,15 +71,25 @@
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
     <script>
       function sendRequest() {
+
+        sex = {
+          'Mr.': 'male',
+          'Mrs.': 'female',
+          'Miss.': 'female',
+          'Master.': 'male'
+        }
+
+        fullName = document.getElementById('lastName').value + ' ' +
+          document.getElementById('title').value + ', ' + document.getElementById('firstName').value
         var data = {
-          'n': document.getElementById('nameInput').value,
-          's': document.getElementById('sexInput').value,
+          'n': fullName,
+          's': sex[document.getElementById('title').value],
           'a': document.getElementById('ageInput').value,
           'c': document.getElementById('classInput').value,
           'si': document.getElementById('sibspInput').value,
           'p': document.getElementById('parchInput').value,
-          'f': document.getElementById('fareInput').value,
-          'ca': document.getElementById('cabinInput').value,
+          'f': '125',
+          'ca': 'B1',
           'e': document.getElementById('embarkedInput').value
         };
 
