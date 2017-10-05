@@ -1,16 +1,38 @@
-# Predicting Titanic survivors based on passenger data
+# Predicting Titanic survivors using machine learning
 
-This is my first application of machine learning techniques. The goal is to
-predict whether a passenger survived the sinking of the Titanic based on his
-or her passenger information. The dataset comes from [Kaggle](https://www.kaggle.com/c/titanic) and is used as
-an introduction to machine learning competitions.
+A machine learning web application that uses historical passenger data to predict
+whether someone would have survived the sinking of the Titanic.
 
-There are plenty of iPython notebooks out there that walk you through the data processing steps, so I won't go too much into details (you can check the code for that). I did try to come up with solutions by myself before looking them up, and in most cases I did.
+Originally this was my attempt to solve the Kaggle challenge ["Titanic: machine
+learning from disaster"](https://www.kaggle.com/c/titanic), but it became
+an experiment to create an end-to-end machine learning application.
 
-## Implementation
+You can try it at this [link](https://titanic-kaggle.herokuapp.com/).
 
-The script `train.py` processes the data, trains a few models and picks the best one to generate the prediction for the target set. The model and other helper functions needed to infer the data are saved in a pickle file. The script `predict.py`
-loads the trained model and helper functions and uses them to predict the results on a given dataset.
+## How it Works
+
+The goal of the application is to predict whether a hypothetical passenger
+(possibly based on the user's personal details) would have survived the sinking
+of the Titanic. It is composed of a training module that learns the relation
+between various passenger details and their survival outcome and a web application
+that uses the trained model to make a prediction on new passenger information.
+
+All the modules except the web front-end are written in Python, and the web
+application runs on Flask.
+
+## Training
+
+The script `train.py` processes the data, trains a few models and picks the
+best one to generate the prediction for the target set. The model and other
+helper functions needed to infer the data are saved in a pickle file.
+The script `predict.py` loads the trained model and helper functions and uses
+them to predict the results on a given dataset. This is mainly used to generate
+the Kaggle submission (the best score I could achieve was **0.78947**).
+
+There are plenty of resources on how to organize a machine learning project for
+this particular problem, so I won't go into too many details. I did try to figure
+things out on my own as much as possible. Below is a summary of the main techniques
+I used.
 
 ### Data Processing
 
@@ -26,21 +48,21 @@ The features I picked for the model are:
 Numeric features are scaled, and categoric values are turned into "dummies", i.e. one column per category with value 0 or 1. This seems to be a requirement for most of the models in Sklearn.
 
 It's important to note that the mean and variance of the data is calculated only on the training set, to avoid making any
-sort of assumption on the test set (which should anyway follow the same distribution). This is why the fit scalers are
-saved to disk during training. 
+sort of assumption on the test set (which should anyway follow the same distribution). This is why the trained scalers are
+saved to disk during training.
 
 ## Model Selection
 
 The script goes through several of the models that come with Sklearn, using default parameters. The training set is split into a training set (60% of the samples) and a cross-validation set, and the models are compared based on the score on the CV set.
 
-The best model according to this comparison is the Support Vector Machine (`SVM.SVC` model in Sklearn), with a training score of 0.84 and a CV score: 0.82. Since the two scores are close, there doesn't seem to be a problem of overfitting (as is for example the case with the RandomForest model).
+The best model according to this comparison is the Support Vector Machine (`SVM.SVC` model in Sklearn), with a training score of 0.84 and a CV score: 0.82. Other models (e.g. RandomForest) achieve a better score on the training set,
+but do worse on the test set because of overfitting.
 
-## Performance of the prediction
+## Web application
 
-If I just predicted that everybody in the Kaggle dataset died, I would get an accuracy of ~0.62. I also tried to make a simple prediction based on the survival rates of males and females, and got a Kaggle score of ~0.7. Note that you can cheat and look up the survival status from one of the Titanic passenger databases, which explains the very high scores in the Kaggle leaderboard. But a score of 0.82 should be achievable with a model.
-
-The best score I have achieved with this implementation is **0.78947**, which is better than the baseline but not that great in Kaggle terms.
-
-## Conclusion
-
-I'm sure my approach to this problem is simplistic, as is demonstrated by the fact that I can't increase the score beyond 0.79. I should at least try different model parameters, and do a more systematic analysis of the training data.  
+The file `app.py` is a Flask application that implementes a REST api
+to interrogate the model, and a static web page that makes requests to the server.
+It can be run locally in Python, in a Docker container via the included Dockerfile,
+or deployed to Heroku. Some of the parameters (e.g. fare, cabin number) hard-coded,
+but a better solution would be to pick them randomly among the values in the training
+set.
